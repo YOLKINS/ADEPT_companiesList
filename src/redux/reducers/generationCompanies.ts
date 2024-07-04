@@ -10,7 +10,6 @@ const generateFakeCompanies = (num: number): Company[] => {
       address: `Address ${i + 1}`,
     });
   }
-  console.log(`Generated ${companies.length} companies`);
   return companies;
 };
 

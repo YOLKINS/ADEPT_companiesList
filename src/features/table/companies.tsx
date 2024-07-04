@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../redux/store/store';
 import { removeCompanies, selectAllCompanies, deselectAllCompanies, selectCompany, deselectCompany } from '../../redux/store/store'; 
+import { Company } from '../../redux/reducers/types';
 import CompanyRow from './row';
 import styles from '../../styles/companies.module.css';
 
 const CompanyTable: React.FC = () => {
-  const companies = useSelector((state: RootState) => state.companies.companies);
-  const selectedCompanyIds = useSelector((state: RootState) => state.companies.selectedCompanyIds);
+
   const dispatch = useDispatch();
 
-  const [visibleCompanies, setVisibleCompanies] = useState(companies.slice(0, 20));
+  const companies = useSelector((state: RootState) => state.companies.companies);
+  const selectedCompanyIds = useSelector((state: RootState) => state.companies.selectedCompanyIds);
+
+  const [visibleCompanies, setVisibleCompanies] = useState<Company[]>([]);
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -26,21 +29,27 @@ const CompanyTable: React.FC = () => {
     });
   };
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
+  const loadMoreCompanies = useCallback(() => {
+    setVisibleCompanies(prev => {
+      const nextBatch = companies.slice(prev.length, prev.length + 20);
+      return [...prev, ...nextBatch];
+    });
+  }, [companies]);
+
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const bottom = Math.abs(e.currentTarget.scrollHeight - e.currentTarget.scrollTop - e.currentTarget.clientHeight) < 1;
     if (bottom) {
-      const nextBatch = companies.slice(visibleCompanies.length, visibleCompanies.length + 20);
-      setVisibleCompanies(prev => [...prev, ...nextBatch]);
+      loadMoreCompanies();
     }
-  };
+  }, []);
 
   useEffect(() => {
     setVisibleCompanies(companies.slice(0, 20));
   }, [companies]);
 
   return (
+    <>
     <div className={styles.tableContainer} onScroll={handleScroll}>
-      <button onClick={handleDeleteSelected}>Удалить выбранные</button>
       <table className={styles.table}>
         <thead>
           <tr>
@@ -68,6 +77,8 @@ const CompanyTable: React.FC = () => {
         </tbody>
       </table>
     </div>
+    {visibleCompanies.length === 0 ? '' : <button className={styles.button} onClick={handleDeleteSelected}>Удалить выбранные</button>}
+    </>
   );
 };
 

@@ -1,9 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Company, CompaniesState } from './types';
 import { v4 as id } from 'uuid';
+import generateFakeCompanies from './generationCompanies';
+
+const initialCompanies = generateFakeCompanies(1000);
 
 const initialState: CompaniesState = {
-  companies: [],
+  companies: initialCompanies,
   selectedCompanyIds: [],
 };
 

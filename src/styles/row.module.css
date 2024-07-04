@@ -1,3 +1,8 @@
 .selectedRow {
     background-color: #e6f7ff;
 }
+
+.row {
+    display: flex;
+    justify-content: center;
+}

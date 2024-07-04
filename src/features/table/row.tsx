@@ -21,7 +21,7 @@ interface CompanyRowProps {
   
     return (
       <tr className={isSelected ? styles.selectedRow : ''}>
-        <td>
+        <td className={styles.row}>
           <input
             type="checkbox"
             checked={isSelected}
